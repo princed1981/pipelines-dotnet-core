@@ -1,17 +1,26 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
 
 trigger:
-- master
+- main
 
 pool:
-  vmImage: ubuntu-latest
-
-variables:
-  buildConfiguration: 'Release'
+  vmImage: 'ubuntu-latest'
 
 steps:
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: AzureResourceManagerTemplateDeployment@3
+  inputs:
+    deploymentScope: 'Resource Group'
+    azureResourceManagerConnection: 'testpipeline-conn'
+    subscriptionId: 'ffc721c1-8268-43ae-b883-64220d5b8e04'
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: 'testpipeline-rg'
+    location: 'Canada Central'
+    templateLocation: 'Linked artifact'
+    csmFile: 'CreateWebApp/azuredeploy.json'
+    overrideParameters: '-projectName tstpipeline -linkedTemplateUri https://raw.githubusercontent.com/princed1981/testpipeline-repo/main/CreateWebApp/linkedStorageAccount.json'
+    deploymentMode: 'Incremental'
+    deploymentName: 'Deploytestpipelinetemplate'
